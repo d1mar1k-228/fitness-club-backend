@@ -7,14 +7,15 @@ import com.fitnessclub.fitnessclubbackend.model.user.ManagerUser;
 import com.fitnessclub.fitnessclubbackend.model.user.User;
 import com.fitnessclub.fitnessclubbackend.repository.InMemoryMembershipRepository;
 import com.fitnessclub.fitnessclubbackend.repository.MembershipRepository;
-import com.fitnessclub.fitnessclubbackend.service.MembershipService;
-import com.fitnessclub.fitnessclubbackend.service.MembershipServiceImpl;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 public class FitnessClubBackendApplication implements CommandLineRunner {
@@ -65,12 +66,36 @@ public class FitnessClubBackendApplication implements CommandLineRunner {
 		}
 
 		// 3. Демонстрация многопоточной обработки (требование методички)
-		System.out.println("\n--- Многопоточная обработка ---");
-		MembershipService service = new MembershipServiceImpl();
-		service.processMembershipsMultithreaded(repository.findAll());
+		System.out.println("\n--- Многопоточная обработка абонементов ---");
+		List<Membership> allMemberships = repository.findAll();
+		
+		// Создаем пул из 3 потоков
+		ExecutorService executor = Executors.newFixedThreadPool(3);
+		
+		for (int i = 0; i < allMemberships.size(); i++) {
+			final Membership membership = allMemberships.get(i);
+			final int index = i;
+			
+			// Отправляем задачу в пул потоков
+			executor.submit(() -> {
+				String threadName = Thread.currentThread().getName();
+				System.out.println("Поток [" + threadName + "] обрабатывает абонемент #" + 
+					(index + 1) + ": " + membership.getClientName() + 
+					" - " + membership.getMembershipType());
+				
+				// Имитация полезной работы
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+			});
+		}
+		
+		// Завершаем работу пула и ждем выполнения всех задач
+		executor.shutdown();
+		executor.awaitTermination(10, TimeUnit.SECONDS);
 
-		// Ждем завершения потоков
-		Thread.sleep(2000);
 		System.out.println("\n=== Демонстрация завершена ===");
 	}
 }
