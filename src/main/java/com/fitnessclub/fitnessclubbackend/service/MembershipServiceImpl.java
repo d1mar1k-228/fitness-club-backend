@@ -24,8 +24,14 @@ public class MembershipServiceImpl implements MembershipService {
             executor.execute(() -> {
                 // Получаем имя текущего потока для доказательства многопоточности
                 String threadName = Thread.currentThread().getName();
+                
+                // Безопасно получаем имя клиента из объекта CustomerUser
+                String clientName = (membership.getClient() != null) 
+                    ? (membership.getClient().getFirstName() + " " + membership.getClient().getLastName()) 
+                    : "Неизвестный клиент";
+
                 System.out.println("[" + threadName + "] Обработка абонемента ID: "
-                        + membership.getId() + " | Клиент: " + membership.getClientName());
+                        + membership.getId() + " | Клиент: " + clientName);
 
                 // Имитация сложной бизнес-логики (например, расчет бонусов или запрос к БД)
                 try {
@@ -44,7 +50,12 @@ public class MembershipServiceImpl implements MembershipService {
     public void notifyExpiringMemberships(List<Membership> memberships) {
         for (Membership m : memberships) {
             if (m.getVisitsLeft() < 5 && m.isActive()) {
-                System.out.println("Уведомление: У клиента " + m.getClientName() +
+                // Безопасно получаем имя клиента из объекта CustomerUser
+                String clientName = (m.getClient() != null) 
+                    ? (m.getClient().getFirstName() + " " + m.getClient().getLastName()) 
+                    : "Неизвестный клиент";
+                    
+                System.out.println("Уведомление: У клиента " + clientName +
                         " осталось " + m.getVisitsLeft() + " посещений. Пора продлить!");
             }
         }
