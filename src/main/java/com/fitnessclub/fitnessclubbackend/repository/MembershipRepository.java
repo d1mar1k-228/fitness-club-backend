@@ -1,13 +1,27 @@
 package com.fitnessclub.fitnessclubbackend.repository;
 
 import com.fitnessclub.fitnessclubbackend.model.membership.Membership;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface MembershipRepository {
-    void save(Membership membership);
-    Optional<Membership> findById(Long id);
-    List<Membership> findAll();
-    void deleteById(Long id);
+import java.util.List;
+
+@Repository
+public interface MembershipRepository extends JpaRepository<Membership, Long> {
+
+    /**
+     * Spring Data JPA автоматически сгенерирует SQL-запрос по имени метода:
+     * SELECT * FROM memberships WHERE visits_left < ?1
+     */
     List<Membership> findByVisitsLeftLessThan(int threshold);
+
+    /**
+     * Найти все абонементы определённого типа
+     */
+    List<Membership> findByMembershipType(com.fitnessclub.fitnessclubbackend.model.membership.MembershipType type);
+
+    /**
+     * Найти все активные абонементы
+     */
+    List<Membership> findByIsActiveTrue();
 }
