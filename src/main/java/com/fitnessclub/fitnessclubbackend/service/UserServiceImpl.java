@@ -1,5 +1,6 @@
 package com.fitnessclub.fitnessclubbackend.service;
 
+import com.fitnessclub.fitnessclubbackend.exception.BadRequestException;
 import com.fitnessclub.fitnessclubbackend.model.user.User;
 import com.fitnessclub.fitnessclubbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,15 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
-    @Override
+        @Override
     public User createUser(User user) {
+        boolean emailExists = userRepository.findAll().stream()
+                .anyMatch(u -> u.getEmail() != null && u.getEmail().equalsIgnoreCase(user.getEmail()));
+
+        if (emailExists) {
+            throw new BadRequestException("Пользователь с email " + user.getEmail() + " уже существует");
+        }
+
         return userRepository.save(user);
     }
 

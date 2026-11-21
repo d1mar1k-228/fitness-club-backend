@@ -1,5 +1,6 @@
 package com.fitnessclub.fitnessclubbackend.controller;
 
+import com.fitnessclub.fitnessclubbackend.model.user.CustomerUser;
 import com.fitnessclub.fitnessclubbackend.model.user.User;
 import com.fitnessclub.fitnessclubbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class UserController {
      * POST /api/users — создать нового пользователя
      */
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<User> createUser(@RequestBody CustomerUser user) { 
         User created = userService.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }

@@ -1,5 +1,6 @@
 package com.fitnessclub.fitnessclubbackend.service;
 
+import com.fitnessclub.fitnessclubbackend.exception.ResourceNotFoundException;
 import com.fitnessclub.fitnessclubbackend.model.membership.Membership;
 import com.fitnessclub.fitnessclubbackend.repository.MembershipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ public class MembershipServiceImpl implements MembershipService {
                     existing.setActive(membership.isActive());
                     return membershipRepository.save(existing);
                 })
-                .orElseThrow(() -> new RuntimeException("Абонемент с ID " + id + " не найден"));
+                   .orElseThrow(() -> new ResourceNotFoundException("Абонемент с ID " + id + " не найден"));
     }
 
     @Override
