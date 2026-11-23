@@ -1,5 +1,6 @@
 package com.fitnessclub.fitnessclubbackend.service;
 
+import com.fitnessclub.fitnessclubbackend.exception.ResourceNotFoundException;
 import com.fitnessclub.fitnessclubbackend.model.membership.Membership;
 import com.fitnessclub.fitnessclubbackend.model.membership.MembershipType;
 import com.fitnessclub.fitnessclubbackend.model.user.CustomerUser;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -70,9 +72,13 @@ class MembershipServiceTest {
     void testGetMembershipById_NotFound() {
         when(membershipRepository.findById(99L)).thenReturn(Optional.empty());
 
-        Optional<Membership> result = membershipService.getMembershipById(99L);
+        // Проверяем, что метод КИДАЕТ исключение ResourceNotFoundException
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            membershipService.getMembershipById(99L);
+        });
 
-        assertFalse(result.isPresent());
+        // Проверяем текст ошибки
+        assertEquals("Абонемент с ID 99 не найден", exception.getMessage());
     }
 
     @Test
