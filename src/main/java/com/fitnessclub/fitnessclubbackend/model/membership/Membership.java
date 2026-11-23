@@ -1,51 +1,59 @@
 package com.fitnessclub.fitnessclubbackend.model.membership;
 
+import com.fitnessclub.fitnessclubbackend.model.user.CustomerUser;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "memberships")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Membership {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String clientName;
-    private String membershipType;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "client_id", nullable = false)
+    private CustomerUser client;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "membership_type", nullable = false)
+    private MembershipType membershipType;
+
+    @Column(name = "visits_left", nullable = false)
     private int visitsLeft;
-    private boolean isActive;
+
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive = true;
+
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
+
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    public Membership(String clientName, String membershipType, int visitsLeft,
+    public Membership(CustomerUser client, MembershipType membershipType, int visitsLeft,
                       LocalDate startDate, LocalDate endDate) {
-        this.clientName = clientName;
+        this.client = client;
         this.membershipType = membershipType;
         this.visitsLeft = visitsLeft;
-        this.isActive = true; // По умолчанию абонемент активен
+        this.isActive = true;
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
-    // Геттеры и сеттеры
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getClientName() { return clientName; }
-    public void setClientName(String clientName) { this.clientName = clientName; }
-
-    public String getMembershipType() { return membershipType; }
-    public void setMembershipType(String membershipType) { this.membershipType = membershipType; }
-
-    public int getVisitsLeft() { return visitsLeft; }
-    public void setVisitsLeft(int visitsLeft) { this.visitsLeft = visitsLeft; }
-
-    public boolean isActive() { return isActive; }
-    public void setActive(boolean active) { isActive = active; }
-
-    public LocalDate getStartDate() { return startDate; }
-    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
-
-    public LocalDate getEndDate() { return endDate; }
-    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
-
     @Override
     public String toString() {
-        return "Membership{id=" + id + ", client='" + clientName + "', type='" +
-                membershipType + "', visitsLeft=" + visitsLeft + ", active=" + isActive + "}";
+        String clientName = (client != null) ? (client.getFirstName() + " " + client.getLastName()) : "Неизвестный клиент";
+        String typeName = (membershipType != null) ? membershipType.getDisplayName() : "Неизвестный тип";
+        
+        return "Membership{id=" + id + ", client='" + clientName + "', type='" + typeName +
+                "', visitsLeft=" + visitsLeft + ", active=" + isActive + "}";
     }
 }
