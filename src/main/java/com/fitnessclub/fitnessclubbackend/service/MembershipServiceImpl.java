@@ -29,7 +29,13 @@ public class MembershipServiceImpl implements MembershipService {
 
     @Override
     public Optional<Membership> getMembershipById(Long id) {
-        return membershipRepository.findById(id);
+        Optional<Membership> founded = membershipRepository.findById(id);
+        
+        if (founded.isEmpty()) {
+            throw new ResourceNotFoundException("Абонемент с ID " + id + " не найден");
+        } 
+        
+        return founded;
     }
 
     @Override
@@ -54,6 +60,10 @@ public class MembershipServiceImpl implements MembershipService {
 
     @Override
     public void deleteMembership(Long id) {
+        if (!membershipRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Абонемент с ID " + id + " не найден для удаления");
+        }
+        
         membershipRepository.deleteById(id);
     }
 
